@@ -25,7 +25,7 @@ LANGUAGE=`echo "$LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=10
 
-CC_SRC_PATH="github.com/chaincode/chaincode_example02/go/"
+CC_SRC_PATH="github.com/chaincode/med_network/go/"
 if [ "$LANGUAGE" = "node" ]; then
 	CC_SRC_PATH="/opt/gopath/src/github.com/chaincode/chaincode_example02/node/"
 fi
@@ -83,34 +83,41 @@ echo "Updating anchor peers for org1..."
 updateAnchorPeers 0 1
 echo "Updating anchor peers for org2..."
 updateAnchorPeers 0 2
+echo "Updating anchor peers for org3..."
+updateAnchorPeers 0 3
+
 
 if [ "${NO_CHAINCODE}" != "true" ]; then
 
 	## Install chaincode on peer0.org1 and peer0.org2
-	echo "Installing chaincode on peer0.org1..."
-	installChaincode 0 1
-	echo "Install chaincode on peer0.org2..."
-	installChaincode 0 2
+	#echo "Installing chaincode on peer0.org1..."
+	#installChaincode 0 1
+	#installChaincode 1 1
+	#echo "Install chaincode on peer0.org2..."
+	#installChaincode 0 2
+	#installChaincode 1 2
+	#sleep 10
 
 	# Instantiate chaincode on peer0.org2
-	echo "Instantiating chaincode on peer0.org1..."
-	instantiateChaincode 0 1
+	#echo "Instantiating chaincode on peer0.org1..."
+	#instantiateChaincode 0 1
+	#sleep 20
 
 	# Query chaincode on peer0.org1
-	echo "Querying chaincode on peer0.org1..."
-	chaincodeQuery 0 1 100
+	#echo "Querying chaincode on peer0.org1..."
+	#chaincodeQuery 0 1 100
 
 	# Invoke chaincode on peer0.org1 and peer0.org2
-	echo "Sending invoke transaction on peer0.org1 peer0.org2..."
-	chaincodeInvoke 0 1 0 2
+	#echo "Sending invoke transaction on peer0.org1 peer0.org2..."
+	#createPackage 1 'vicodin' 'abbott' '24.6' '45.677' '34.5654' 'peer0.org1' '8' 0 1 0 2
 	
 	## Install chaincode on peer1.org2
-	echo "Installing chaincode on peer1.org2..."
-	installChaincode 1 2
+	#echo "Installing chaincode on peer1.org2..."
+	#installChaincode 1 2
 
 	# Query on chaincode on peer1.org2, check if the result is 90
 	echo "Querying chaincode on peer1.org2..."
-	chaincodeQuery 1 2 90
+	#chaincodeQuery 1 2 90
 	
 fi
 
