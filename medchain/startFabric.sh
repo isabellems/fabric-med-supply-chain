@@ -115,27 +115,27 @@ docker exec \
 echo "Waiting for instantiation request to be committed ..."
 sleep 10
 
-echo "Submitting initLedger transaction to smart contract on mychannel"
-echo "The transaction is sent to the two peers with the chaincode installed (peer0.org1.example.com and peer0.org2.example.com) so that chaincode is built before receiving the following requests"
-docker exec \
-  -e CORE_PEER_LOCALMSPID=Org1MSP \
-  -e CORE_PEER_MSPCONFIGPATH=${ORG1_MSPCONFIGPATH} \
-  cli \
-  peer chaincode invoke \
-    -o orderer.example.com:7050 \
-    -C mychannel \
-    -n fabcar \
-    -c '{"function":"initLedger","Args":[]}' \
-    --waitForEvent \
-    --tls \
-    --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
-    --peerAddresses peer0.org1.example.com:7051 \
-    --peerAddresses peer0.org2.example.com:9051 \
-    --peerAddresses peer0.org3.example.com:11051 \
-    --tlsRootCertFiles ${ORG1_TLS_ROOTCERT_FILE} \
-    --tlsRootCertFiles ${ORG2_TLS_ROOTCERT_FILE}
-    --tlsRootCertFiles ${ORG3_TLS_ROOTCERT_FILE}
-set +x
+#echo "Submitting initLedger transaction to smart contract on mychannel"
+#echo "The transaction is sent to the two peers with the chaincode installed (peer0.org1.example.com and peer0.org2.example.com) so that chaincode is built before receiving the following requests"
+#docker exec \
+#  -e CORE_PEER_LOCALMSPID=Org1MSP \
+#  -e CORE_PEER_MSPCONFIGPATH=${ORG1_MSPCONFIGPATH} \
+#  cli \
+#  peer chaincode invoke \
+#    -o orderer.example.com:7050 \
+#    -C mychannel \
+#    -n med \
+#    -c '{"function":"initLedger","Args":[]}' \
+#    --waitForEvent \
+#    --tls \
+#    --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
+#    --peerAddresses peer0.org1.example.com:7051 \
+#    --peerAddresses peer0.org2.example.com:9051 \
+#    --peerAddresses peer0.org3.example.com:11051 \
+#    --tlsRootCertFiles ${ORG1_TLS_ROOTCERT_FILE} \
+#    --tlsRootCertFiles ${ORG2_TLS_ROOTCERT_FILE} \
+#    --tlsRootCertFiles ${ORG3_TLS_ROOTCERT_FILE}
+#set +x
 
 cat <<EOF
 

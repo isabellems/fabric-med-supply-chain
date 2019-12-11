@@ -89,27 +89,34 @@ updateAnchorPeers 0 3
 
 if [ "${NO_CHAINCODE}" != "true" ]; then
 
-	## Install chaincode on peer0.org1 and peer0.org2
-	#echo "Installing chaincode on peer0.org1..."
-	#installChaincode 0 1
-	#installChaincode 1 1
-	#echo "Install chaincode on peer0.org2..."
-	#installChaincode 0 2
-	#installChaincode 1 2
-	#sleep 10
+	#Install chaincode on peer0.org1 and peer0.org2
+	echo "Installing chaincode on peer0.org1..."
+	installChaincode 0 1
+	echo "Installing chaincode on peer1.org1..."
+	installChaincode 1 1
+	echo "Install chaincode on peer0.org2..."
+	installChaincode 0 2
+	echo "Install chaincode on peer1.org2..."
+	installChaincode 1 2
+	echo "Install chaincode on peer0.org3..."
+	installChaincode 0 3
+	echo "Install chaincode on peer1.org3..."
+	installChaincode 1 3
+
+	sleep 10
 
 	# Instantiate chaincode on peer0.org2
-	#echo "Instantiating chaincode on peer0.org1..."
-	#instantiateChaincode 0 1
-	#sleep 20
+	echo "Instantiating chaincode on peer0.org1..."
+	instantiateChaincode 0 1
+	sleep 20
 
 	# Query chaincode on peer0.org1
 	#echo "Querying chaincode on peer0.org1..."
 	#chaincodeQuery 0 1 100
 
 	# Invoke chaincode on peer0.org1 and peer0.org2
-	#echo "Sending invoke transaction on peer0.org1 peer0.org2..."
-	#createPackage 1 'vicodin' 'abbott' '24.6' '45.677' '34.5654' 'peer0.org1' '8' 0 1 0 2
+	echo "Sending invoke transaction on peer0.org1 peer0.org2 peer0.org3..."
+	createPackage 1 'vicodin' 'abbott' '24.6' '45.677' '34.5654' 'peer0.org1' '8' '21' 0 1 0 2 0 3
 	
 	## Install chaincode on peer1.org2
 	#echo "Installing chaincode on peer1.org2..."
