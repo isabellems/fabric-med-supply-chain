@@ -95,7 +95,7 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
 
 
    if len(args) != 9 {
-      return shim.Error("Incorrect number of arguments. Expecting 4")
+      return shim.Error("Incorrect number of arguments. Expecting 9")
    }
    if len(args[0]) <= 0 {
        return shim.Error("1st argument must be a non-empty string")
@@ -340,7 +340,7 @@ func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, 
 func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args[]string) pb.Response {
 	// Id, Temperature, LocationLatitutde, LocationLongitude, Timestamp
 	if len(args) < 5 {
-		return shim.Error("BLASHDHASDH Incorrect number of arguments. Expecting 5")
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	packageId := args[0]
