@@ -77,6 +77,8 @@ func (t* SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
           return t.queryDrugPackageByName(stub, args)
   } else if function == "queryDrugPackageByHolder" { //find packages currently having a specific holder
           return t.queryDrugPackageByHolder(stub, args)
+  } else if function == "queryDrugPackages" {
+	  return t.queryDrugPackage(stub, args)
   } else if function == "getHistoryForDrugPackage" {
 	  return t.getHistoryForDrugPackage(stub, args)
   }
@@ -185,6 +187,9 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    value := []byte{0x00}
    stub.PutState(manufacturerIdIndexKey, value)
 
+   // ==== Index ====
+   
+
    // ==== DrugPackage saved and indexed ====
    fmt.Println("- end init drug package")
    return shim.Success(nil)
@@ -215,6 +220,23 @@ func (t *SimpleChaincode) readDrugPackage(stub shim.ChaincodeStubInterface, args
    }
 
    return shim.Success(valAsBytes)
+}
+
+
+func (t *SimpleChaincode) queryDrugPackages(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+  
+  if len(args) < 1 {
+          return shim.Error("Incorrect number of arguments. Expecting 1")
+  }
+
+  queryString := args[0]
+
+  queryResylts := getQueryResultForQueryString(stub, queryString)
+  if err != nil {
+	  return shim.Error(err.Error())
+  }
+  return shim.Sucess(queryResults)
+
 }
 
 

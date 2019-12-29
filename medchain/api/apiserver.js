@@ -125,7 +125,7 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
       return res.status(200).send({ error: "Insufficient arguments" });
     }
 
-    await contract.submitTransaction('moveDrugPackage', id, temperature, locationLatitude, locationLongitude, timestamp);
+    let result = await contract.submitTransaction('moveDrugPackage', id, temperature, locationLatitude, locationLongitude, timestamp);
     res.sendStatus(200);
 
     await gateway.disconnect();
@@ -135,13 +135,84 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
     return res.status(200).send({ error: e });
   }
 
+});
+
+app.get('/api/drugPackages/:id', async (req, res) => {
+ try {
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = new FileSystemWallet(walletPath);
+    console.log(`Wallet is in: ${walletPath}`);
+
+    const userExists = await wallet.exists('user1');
+    if(!userExists) {
+      console.log('An identity for the user does not exist in the wallet')
+      return;
+    }
+
+    const gateway = new Gateway();
+    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+
+    const network = await gateway.getNetwork('mychannel');
+    const contract = network.getContract('med');
+    
+    let id = req.params.id;
+	
+    if(!id) {
+      console.log('Not sufficient arguments');
+      return res.status(200).send({ error: "Insufficient arguments" });
+    }
+
+    let result = await contract.evaluateTransaction('readDrugPackage', id);
+    console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+    res.status(200).json({ response: result.toString() });
+
+    await gateway.disconnect();
+
+  } catch(e) {
+    console.error(`Failed to submit transaction: ${e}`);
+    return res.status(200).send({ error: e });
+  }
 
 
 });
 
-app.post('/api/drugPackages/:id', async (req, res) => {});
+app.get('/api/history/:id', async (req, res) => {
+ try {
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = new FileSystemWallet(walletPath);
+    console.log(`Wallet is in: ${walletPath}`);
 
-app.get('/api/history/:id', async (req, res) => {});
+    const userExists = await wallet.exists('user1');
+    if(!userExists) {
+      console.log('An identity for the user does not exist in the wallet')
+      return;
+    }
+
+    const gateway = new Gateway();
+    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+
+    const network = await gateway.getNetwork('mychannel');
+    const contract = network.getContract('med');
+    
+    let id = req.params.id;
+	
+    if(!id) {
+      console.log('Not sufficient arguments');
+      return res.status(200).send({ error: "Insufficient arguments" });
+    }
+
+    let result = await contract.evaluateTransaction('getHistoryForDrugPackage', id);
+    console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+    res.status(200).json({ response: result.toString() });
+
+    await gateway.disconnect();
+
+  } catch(e) {
+    console.error(`Failed to submit transaction: ${e}`);
+    return res.status(200).send({ error: e });
+  }
+
+});
 
 app.listen(3000);
 
