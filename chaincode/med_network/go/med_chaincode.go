@@ -78,7 +78,7 @@ func (t* SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
   } else if function == "queryDrugPackageByHolder" { //find packages currently having a specific holder
           return t.queryDrugPackageByHolder(stub, args)
   } else if function == "queryDrugPackages" {
-	  return t.queryDrugPackage(stub, args)
+	  return t.queryDrugPackages(stub, args)
   } else if function == "getHistoryForDrugPackage" {
 	  return t.getHistoryForDrugPackage(stub, args)
   }
@@ -231,11 +231,11 @@ func (t *SimpleChaincode) queryDrugPackages(stub shim.ChaincodeStubInterface, ar
 
   queryString := args[0]
 
-  queryResylts := getQueryResultForQueryString(stub, queryString)
+  queryResults, err := getQueryResultForQueryString(stub, queryString)
   if err != nil {
 	  return shim.Error(err.Error())
   }
-  return shim.Sucess(queryResults)
+  return shim.Success(queryResults)
 
 }
 

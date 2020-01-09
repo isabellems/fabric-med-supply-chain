@@ -173,8 +173,62 @@ app.get('/api/drugPackages/:id', async (req, res) => {
     return res.status(200).send({ error: e });
   }
 
-
 });
+
+app.post('/api/drugPackages', async (req, res) => {
+ try {
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = new FileSystemWallet(walletPath);
+    console.log(`Wallet is in: ${walletPath}`);
+
+    const userExists = await wallet.exists('user1');
+    if(!userExists) {
+      console.log('An identity for the user does not exist in the wallet')
+      return;
+    }
+
+    const gateway = new Gateway();
+    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+
+    const network = await gateway.getNetwork('mychannel');
+    const contract = network.getContract('med');
+    
+    let selector = {};
+    selector.name = req.body.name ? req.body.name : undefined
+    selector.manufacturer = req.body.manufacturer ? req.body.manufacturer : undefined
+    selector.temperature = req.body.temperature ? req.body.temperature : undefined
+    selector.holder = req.body.holder ? req.body.holder : undefined
+    selector.pieces = req.body.pieces ? req.body.pieces : undefined
+    selector.dateCreated = req.body.dateCreated ? req.body.dateCreated : undefined
+    selector.dateShipped = req.body.dateShipped ? req.body.dateShipped : undefined
+    if (req.body.location) {
+	    selector.location = {}
+	    if (req.body.location.latitude) {
+		    selector.location.latitude = req.body.location.latitude
+	    }
+	    if (req.body.location.longitude) {
+		    selector.location.longitude = req.body.location.longitude
+            }
+    }
+    console.log('selector')
+    console.log(selector)
+    let query = JSON.stringify({ selector })
+    console.log('query')
+    console.log(query)
+	
+    let result = await contract.evaluateTransaction('queryDrugPackages', query);
+    console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+    res.status(200).json({ response: result.toString() });
+
+    await gateway.disconnect();
+
+  } catch(e) {
+    console.error(`Failed to submit transaction: ${e}`);
+    return res.status(200).send({ error: e });
+  }
+
+
+})
 
 app.get('/api/history/:id', async (req, res) => {
  try {
