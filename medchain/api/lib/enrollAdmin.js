@@ -14,7 +14,6 @@ async function enrollAdmin(organisation) {
     let connectionFile = '';
     let caName = '';
     let mspName = '';
-    let userName = `admin@${organisation}`;
     if (organisation === 'org1') {
 	    connectionFile = 'connection-org1.json';
 	    caName = 'ca.org1.example.com';
@@ -43,12 +42,12 @@ async function enrollAdmin(organisation) {
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
         // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), `identity/${userName}/wallet`);
+        const walletPath = path.join(process.cwd(), `identity/${organisation}/wallet`);
         const wallet = new FileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the admin user.
-        const adminExists = await wallet.exists(userName);
+        const adminExists = await wallet.exists('admin');
         if (adminExists) {
             console.log('An identity for the admin user "admin" already exists in the wallet');
             return;
