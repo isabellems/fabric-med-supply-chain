@@ -12,6 +12,8 @@ async function addUser(user, organisation) {
   let connectionFile = '';
   let department = '';
   let msp = '';
+  let userName = `${user}@{organisation}`;
+  let adminWalletName = `identity/admin@${organisation}/wallet`;
   if (organisation === 'org1') {
 	  connectionFile = 'connection-org1.json';
 	  department = 'org1.department1';
@@ -31,19 +33,21 @@ async function addUser(user, organisation) {
 
   try {
         // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
+        const walletPath = path.join(process.cwd(), `identity/${user}/wallet`);
         const wallet = new FileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists(user);
+        const userExists = await wallet.exists(userName);
         if (userExists) {
             console.log(`An identity for the user \"${user}\" already exists in the wallet`);
             return;
         }
 
         // Check to see if we've already enrolled the admin user.
-        const adminExists = await wallet.exists('admin');
+	const adminWalletPath = path.join(process.cwd(), adminWalletName);
+	const adminWallet = new FileSystemWallet(adminWalletPath);
+        const adminExists = await adminWallet.exists('admin');
         if (!adminExists) {
             console.log('An identity for the admin user "admin" does not exist in the wallet');
             console.log('Run the enrollAdmin.js application before retrying');
@@ -56,13 +60,13 @@ async function addUser(user, organisation) {
 
         // Get the CA client object from the gateway for interacting with the CA.
         const ca = gateway.getClient().getCertificateAuthority();
-        const adminIdentity = gateway.getCurrentIdentity();
+        //const adminIdentity = gateway.getCurrentIdentity();
 
         // Register the user, enroll the user, and import the new identity into the wallet.
-        const secret = await ca.register({ affiliation: department, enrollmentID: user, role: 'client' }, adminIdentity);
-        const enrollment = await ca.enroll({ enrollmentID: user, enrollmentSecret: secret });
-        const userIdentity = X509WalletMixin.createIdentity(msp, enrollment.certificate, enrollment.key.toBytes());
-        await wallet.import(user, userIdentity);
+        //const secret = await ca.register({ affiliation: department, enrollmentID: userName, role: 'client' }, adminIdentity);
+        //const enrollment = await ca.enroll({ enrollmentID: userName, enrollmentSecret: secret });
+        //const userIdentity = X509WalletMixin.createIdentity(msp, enrollment.certificate, enrollment.key.toBytes());
+        //await wallet.import(userName, userIdentity);
         console.log(`Successfully registered and enrolled admin user \"${user}\" and imported it into the wallet`);
 
 
