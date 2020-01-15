@@ -13,6 +13,7 @@ async function addUser(user, organisation) {
   let department = '';
   let msp = '';
   let userName = `${user}@${organisation}`;
+  let caAdmin = `admin@${organisation}`;
   if (organisation === 'org1') {
 	  connectionFile = 'connection-org1.json';
 	  department = 'org1.department1';
@@ -32,7 +33,7 @@ async function addUser(user, organisation) {
 
   try {
         // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), `identity/${organisation}/wallet`);
+        const walletPath = path.join(process.cwd(), `identity/${user}/wallet`);
         const wallet = new FileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
@@ -44,16 +45,19 @@ async function addUser(user, organisation) {
         }
 
         // Check to see if we've already enrolled the admin user.
-        const adminExists = await wallet.exists('admin');
+	const adminWalletPath = path.join(process.cwd(), `identity/admin/wallet`);
+	const adminWallet = new FileSystemWallet(adminWalletPath);
+        const adminExists = await adminWallet.exists(caAdmin);
         if (!adminExists) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
+            console.log('An identity for the admin user "admin" does not exist in a wallet');
             console.log('Run the enrollAdmin.js application before retrying');
             return;
         }
+	
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccpPath, { wallet: adminWallet, identity: caAdmin, discovery: { enabled: true, asLocalhost: true } });
 
         // Get the CA client object from the gateway for interacting with the CA.
         const ca = gateway.getClient().getCertificateAuthority();
