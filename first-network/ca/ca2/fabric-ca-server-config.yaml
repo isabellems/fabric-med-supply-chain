@@ -85,7 +85,7 @@ tls:
 #############################################################################
 ca:
   # Name of this CA
-  name: ca2
+  name: ca
   # Key file (is only used to import a private key into BCCSP)
   keyfile:
   # Certificate file (default: ca-cert.pem)
@@ -128,8 +128,8 @@ registry:
 
   # Contains identity information which is used when LDAP is disabled
   identities:
-     - name: admin
-       pass: adminpwd
+     - name: admin@org3
+       pass: adminpw
        type: client
        affiliation: ""
        attrs:
@@ -140,7 +140,7 @@ registry:
           hf.GenCRL: true
           hf.Registrar.Attributes: "*"
           hf.AffiliationMgr: true
-
+     
 #############################################################################
 #  Database section
 #  Supported types are: "sqlite3", "postgres", and "mysql".
@@ -245,12 +245,12 @@ affiliations:
    org1:
       - department1
       - department2
-        #   org2:
-        #- department1
-        #- department2
-        #org3:
-        #- department1
-        #- department2
+   org2:
+      - department1
+      - department2
+   org3:
+       - department1
+       - department2
 
 #############################################################################
 #  Signing section

@@ -20,10 +20,10 @@ services:
       - FABRIC_CA_SERVER_PORT=7054
     ports:
       - "7054:7054"
-    command: sh -c 'fabric-ca-server start --config /ca/ca0/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA1_PRIVATE_KEY} -n ca-org1 -b admin:adminpw -d'
+    command: sh -c 'fabric-ca-server start --config /ca/ca0/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA1_PRIVATE_KEY} -n ca-org1 -b admin@org1:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/org1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
-      - ./ca/fabric-ca-server-config.yaml:/ca/ca0/fabric-ca-server-config.yaml
+      - ./ca/ca0/fabric-ca-server-config.yaml:/ca/ca0/fabric-ca-server-config.yaml
     container_name: ca_peerOrg1
     networks:
       - byfn
@@ -39,10 +39,10 @@ services:
       - FABRIC_CA_SERVER_PORT=8054
     ports:
       - "8054:8054"
-    command: sh -c 'fabric-ca-server start  --config /ca/ca1/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA2_PRIVATE_KEY} -b admin:adminpw -n ca-org2 -d'
+    command: sh -c 'fabric-ca-server start  --config /ca/ca1/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA2_PRIVATE_KEY} -b admin@org2:adminpw -n ca-org2 -d'
     volumes:
       - ./crypto-config/peerOrganizations/org2.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
-      - ./ca/fabric-ca-server-config.yaml:/ca/ca1/fabric-ca-server-config.yaml
+      - ./ca/ca1/fabric-ca-server-config.yaml:/ca/ca1/fabric-ca-server-config.yaml
     container_name: ca_peerOrg2
     networks:
       - byfn
@@ -58,10 +58,10 @@ services:
       - FABRIC_CA_SERVER_PORT=9054
     ports:
       - "9054:9054"
-    command: sh -c 'fabric-ca-server start  --config /ca/ca2/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org3.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA3_PRIVATE_KEY} -b admin:adminpw -n ca-org3 -d'
+    command: sh -c 'fabric-ca-server start  --config /ca/ca2/fabric-ca-server-config.yaml --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org3.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${BYFN_CA3_PRIVATE_KEY} -b admin@org3:adminpw -n ca-org3 -d'
     volumes:
       - ./crypto-config/peerOrganizations/org3.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
-      - ./ca/fabric-ca-server-config.yaml:/ca/ca2/fabric-ca-server-config.yaml
+      - ./ca/ca2/fabric-ca-server-config.yaml:/ca/ca2/fabric-ca-server-config.yaml
     container_name: ca_peerOrg3
     networks:
       - byfn

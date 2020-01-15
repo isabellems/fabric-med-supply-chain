@@ -128,7 +128,7 @@ registry:
 
   # Contains identity information which is used when LDAP is disabled
   identities:
-     - name: admin
+     - name: admin@org1
        pass: adminpw
        type: client
        affiliation: ""
@@ -140,6 +140,32 @@ registry:
           hf.GenCRL: true
           hf.Registrar.Attributes: "*"
           hf.AffiliationMgr: true
+     - name: admin@org2
+       pass: adminpw
+       type: client
+       affiliation: ""
+       attrs:
+          hf.Registrar.Roles: "*"
+          hf.Registrar.DelegateRoles: "*"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+          hf.AffiliationMgr: true
+     - name: admin@org3
+       pass: admipw
+       type: client
+       affiliation: ""
+       attrs:
+          hf.Registrar.Roles: "*"
+          hf.Registrar.DelegateRoles: "*"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+          hf.AffiliationMgr: true
+
+
 
 #############################################################################
 #  Database section
