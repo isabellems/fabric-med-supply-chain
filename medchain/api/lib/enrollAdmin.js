@@ -11,25 +11,12 @@ const path = require('path');
 
 
 async function enrollAdmin(organisation) {
-    let connectionFile = '';
-    let caName = '';
-    let mspName = '';
-    let userName = `admin@${organisation}`;
-    if (organisation === 'org1') {
-	    connectionFile = 'connection-org1.json';
-	    caName = 'ca.org1.example.com';
-	    mspName = 'Org1MSP';
-    } else if (organisation === 'org2') {
-	    connectionFile = 'connection-org2.json';
-	    caName = 'ca.org2.example.com';
-	    mspName = 'Org2MSP';
-    } else if (organisation === 'org3') {
-	    connectionFile = 'connection-org3.json';
-	    caName = 'ca.org3.example.com';
-	    mspName = 'Org3MSP';
-    } else {
-	    throw 'Given org does not exist';
-    }
+    let connectionFile = organisation.connectionFile;
+    let caName = organisation.ca;
+    let mspName = organisation.msp;
+    let userName = organisation.admin;
+
+    console.log(organisation)
     
     const ccpPath = path.resolve(__dirname, '../..', '..', 'first-network', connectionFile);
     const ccpJSON = fs.readFileSync(ccpPath, 'utf8');

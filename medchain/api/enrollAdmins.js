@@ -1,10 +1,11 @@
 const enrollAdmin = require('./lib/enrollAdmin');
+const config = require('./config');
 
 async function enrollAdmins() {
-   try {
-	await enrollAdmin('org1');
-	await enrollAdmin('org2');
-	await enrollAdmin('org3');
+   try { 
+     for (organisation of config.organisations) {
+       await enrollAdmin(organisation);
+     }
    } catch(e) {
 	console.log(e);
    }

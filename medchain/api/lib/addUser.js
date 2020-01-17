@@ -9,26 +9,11 @@ const path = require('path');
 
 
 async function addUser(user, organisation) {
-  let connectionFile = '';
-  let department = '';
-  let msp = '';
-  let userName = `${user}@${organisation}`;
-  let caAdmin = `admin@${organisation}`;
-  if (organisation === 'org1') {
-	  connectionFile = 'connection-org1.json';
-	  department = 'org1.department1';
-	  msp = 'Org1MSP';
-  } else if (organisation === 'org2') {
-	  connectionFile = 'connection-org2.json';
-	  department = 'org2.department1';
-	  msp = 'Org2MSP';
-  } else if (organisation === 'org3') {
-	  connectionFile = 'connection-org3.json';
-	  department = 'org3.department1';
-	  msp = 'Org3MSP';
-  } else {
-	  throw 'Given org does not exist';
-  }
+  let connectionFile = organisation.connectionFile;
+  let department = organisation.departments[0];
+  let msp = organisation.msp;
+  let userName = `${user}@${organisation.name}`;
+  let caAdmin = organisation.admin;
   const ccpPath = path.resolve(__dirname, '..', '../..', 'first-network', connectionFile);
 
   try {
