@@ -8,5 +8,12 @@ module.exports = {
       msp: '',
       admin: ''
     }
+  ],
+  users: [
+    {
+      name: '',
+      organisation: '',
+      token: ''
+    }
   ]
 }

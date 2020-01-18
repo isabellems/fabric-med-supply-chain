@@ -31,5 +31,32 @@ module.exports = {
       admin: 'admin@org3',
       ca: 'ca.org3.example.com'
     }
+  ],
+  users: [
+     {
+       name: 'peer0',
+       organisation: 'org1',
+       token: 's32dqwd'
+     }, {
+       name: 'peer1',
+       organisation: 'org1',
+       token: 'sdsd221'
+     }, {
+       name: 'peer0',
+       organisation: 'org2',
+       token: '21sadjd'
+     }, {
+       name: 'peer1',
+       organisation: 'org2',
+       token: 'djsja22'
+     }, { 
+       name: 'peer0',
+       organisation: 'org3',
+       token: 'sdkad222'
+     }, {
+       name: 'peer1',
+       organisation: 'org3',
+       token: 's232hjhd'
+     }
   ]
 }

@@ -1,5 +1,6 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const { validateCredentials } = require('./lib/util'); 
 
 var app = express();
 app.use(bodyParser.json());
@@ -8,6 +9,29 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
 console.log(ccpPath)
+
+app.use(function (req, res, next) {
+
+   if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+     return res.send(401).json({ 'message': 'Authorization Header Missing' });
+   }
+
+   const base64Credentials = req.headers.authorization.split(' ')[1];
+   const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+   const [username, token] = credentials.split(':');
+   console.log('Username ' + username);
+   console.log('Password ' + token);
+   
+   const user = validateCredentials(username, token);
+   if (!user) {
+     console.log('Invalid credentials');
+     return res.status(401).json({ 'message': 'Invalid Credentials' });
+   }
+   req.user = user;
+   console.log('User');
+   console.log(req.user);
+   next();
+})
 
 app.post('/api/createDrugPackage', async (req, res) => {
   try {
