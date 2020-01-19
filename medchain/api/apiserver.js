@@ -1,58 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { validateCredentials } = require('./lib/util'); 
+const { authorizeUser, validateIdentity, createGateway } = require('./lib/middleware');
+const { FileSystemWallet, Gateway } = require('fabric-network');
+const path = require('path');
 
 var app = express();
 app.use(bodyParser.json());
 
-const { FileSystemWallet, Gateway } = require('fabric-network');
-const path = require('path');
 const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
 console.log(ccpPath)
 
-app.use(async function (req, res, next) {
-
-   if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
-     return res.send(401).json({ 'message': 'Authorization Header Missing' });
-   }
-
-   const base64Credentials = req.headers.authorization.split(' ')[1];
-   const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-   const [fullUsername, token] = credentials.split(':');
-   console.log('Username ' + fullUsername);
-   console.log('Password ' + token);
-   const [username, organisation] = fullUsername.split('@');
-   const user = validateCredentials(username, token);
-   if (!user) {
-     console.log('Invalid credentials');
-     return res.status(401).json({ 'message': 'Invalid Credentials' });
-   }
-   user.identity = fullUsername;
-   req.user = user;
-   console.log('User');
-   console.log(req.user);
-   const walletPath = path.join(process.cwd(), `identity/${user.name}/wallet`);
-   console.log(`Wallet is in: ${walletPath}`);
-   const wallet = new FileSystemWallet(walletPath);
-   const userExists = await wallet.exists(user.identity);
-   console.log(user.identity)
-   if(!userExists) {
-     console.log('An identity for the user does not exist in the wallet');
-     return res.status(401).json({ 'message':'An identity for the user does not exist in the wallet' });
-   }
-   req.wallet = wallet;
-   next();
-})
+app.use(authorizeUser, validateIdentity, createGateway);
 
 app.post('/api/createDrugPackage', async (req, res) => {
   try {
-
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet: req.wallet, identity: req.user.identity, discovery: { enabled: true, asLocalhost: true } });
-
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
     
+    console.log('In route');
+    
+    const gateway = req.gateway;
+    const contract = req.contract;
+    console.log(req.body);
+
     let id = req.body.id;
     let name = req.body.name;
     let manufacturer = req.body.manufacturer;
@@ -68,7 +37,9 @@ app.post('/api/createDrugPackage', async (req, res) => {
       return res.status(200).send({ error: "Insufficient arguments" });
     }
 
+    console.log('Before submit');
     await contract.submitTransaction('initDrugPackage', id, name, manufacturer, temperature, locationLatitude, locationLongitude, holder, pieces, timestamp);
+    console.log('After submit');
     res.sendStatus(200);
 
     await gateway.disconnect();
@@ -82,11 +53,8 @@ app.post('/api/createDrugPackage', async (req, res) => {
 app.put('/api/transferDrugPackage/:id', async (req, res) => {
    try {
 
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
-
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
+    const gateway = req.gateway;
+    const contract = req.contract;
     
     let id = req.params.id;
     let temperature = req.body.temperature;
@@ -100,8 +68,10 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
       console.log('Not sufficient arguments');
       return res.status(200).send({ error: "Insufficient arguments" });
     }
-
+    
+    console.log('Here');
     await contract.submitTransaction('transferDrugPackage', id, holder, temperature, locationLatitude, locationLongitude, pieces, timestamp);
+    console.log('There');
     res.sendStatus(200);
 
     await gateway.disconnect();
@@ -116,11 +86,8 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
 app.put('/api/moveDrugPackage/:id', async (req, res) => {
   try {
 
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
-
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
+    const gateway = req.gateway;
+    const contract = req.contract;
     
     let id = req.params.id;
     let temperature = req.body.temperature;
@@ -148,12 +115,9 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
 app.get('/api/drugPackages/:id', async (req, res) => {
  try {
 
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+    const gateway = req.gateway;
+    const contract = req.contract;
 
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
-    
     let id = req.params.id;
 	
     if(!id) {
@@ -177,11 +141,8 @@ app.get('/api/drugPackages/:id', async (req, res) => {
 app.post('/api/drugPackages', async (req, res) => {
  try {
 
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
-
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
+    const gateway = req.gateway;
+    const contract = req.contract;
     
     let selector = {};
     selector.name = req.body.name ? req.body.name : undefined
@@ -223,11 +184,8 @@ app.post('/api/drugPackages', async (req, res) => {
 app.get('/api/history/:id', async (req, res) => {
  try {
 
-    const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
-
-    const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('med');
+    const gateway = req.gateway;
+    const contract = req.contract;
     
     let id = req.params.id;
 	

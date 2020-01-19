@@ -1,5 +1,8 @@
 module.exports = {
-  port: "",
+  port: '',
+  network: ''
+  channel: '',
+  contract: '',
   organisations: [
     {
       name: '',

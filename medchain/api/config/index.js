@@ -1,5 +1,8 @@
 module.exports = {
   port: "3331",
+  network: 'first-network',
+  channel: 'mychannel',
+  contract: 'med',
   organisations: [
     {
       name: 'org1',
