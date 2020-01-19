@@ -7,7 +7,7 @@ module.exports = {
     {
       name: '',
       connectionFile: '',
-      departments: [],
+      departments: [''],
       msp: '',
       admin: ''
     }
@@ -15,7 +15,7 @@ module.exports = {
   users: [
     {
       name: '',
-      organisation: '',
+      organisations: [''],
       token: ''
     }
   ]

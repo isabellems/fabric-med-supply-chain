@@ -20,6 +20,7 @@ async function authorizeUser(req, res, next) {
      return res.status(401).json({ 'message': 'Invalid Credentials' });
    }
    user.identity = fullUsername;
+   user.organisation = organisation;
    req.user = user;
    console.log('User');
    console.log(req.user);

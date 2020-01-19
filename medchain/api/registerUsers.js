@@ -5,8 +5,10 @@ async function registerUsers() {
   
   try {
     for (user of config.users) {
-      let organisation = config.organisations.find(org => org.name == user.organisation);
-      await addUser(user.name, organisation);
+      for (organisation of user.organisations) {
+	 let identityOrg = config.organisations.find(org => org.name == organisation);
+         await addUser(user.name, identityOrg);
+      }
     }
    } catch(e) {
 	console.log(e);
