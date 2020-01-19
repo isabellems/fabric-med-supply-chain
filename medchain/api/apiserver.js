@@ -29,7 +29,7 @@ app.post('/api/createDrugPackage', async (req, res) => {
 	
   if(!id || !name || !manufacturer || !temperature || !locationLatitude || !locationLongitude || !holder || !pieces) {
     console.log('Not sufficient arguments');
-    return res.status(200).send({ error: "Insufficient arguments" });
+    return res.status(200).json({ error: "Insufficient arguments" });
   }
   console.log('Submitting transaction...');
   
@@ -39,7 +39,7 @@ app.post('/api/createDrugPackage', async (req, res) => {
   } catch(e) {
     console.log('Failed to submit transaction');
     console.log(e);
-    res.status(200).send({ error: e.message });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
@@ -61,7 +61,7 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
 	
   if(!id || !temperature || !locationLatitude || !locationLongitude || !holder || !pieces) {
     console.log('Not sufficient arguments');
-    return res.status(200).send({ error: "Insufficient arguments" });
+    return res.status(200).json({ error: "Insufficient arguments" });
   }
     
   console.log('Submitting transaction...');
@@ -71,7 +71,7 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
   } catch(e) {
     console.log('Failed to submit transaction');
     console.log(e);
-    res.status(200).send({ error: e.message });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
@@ -91,7 +91,7 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
 	
   if(!id || !temperature || !locationLatitude || !locationLongitude) {
     console.log('Not sufficient arguments');
-    return res.status(200).send({ error: "Insufficient arguments" });
+    return res.status(200).json({ error: "Insufficient arguments" });
   }
 
   console.log('Submitting transaction...');
@@ -101,7 +101,7 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
   } catch(e) {
     console.log('Failed to submit transaction');
     console.log(e)
-    res.status(200).send({ error: e.message });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
@@ -116,16 +116,18 @@ app.get('/api/drugPackages/:id', async (req, res) => {
   let id = req.params.id; 
   if(!id) {
     console.log('Not sufficient arguments');
-    return res.status(200).send({ error: "Insufficient arguments" });
+    return res.status(200).json({ error: "Insufficient arguments" });
   }
   let result;
   console.log('Evaluating transaction...');
   try {
+    console.log('Id:');
+    console.log(id);
     result = await contract.evaluateTransaction('readDrugPackage', id);
     console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
   } catch(e) {
     console.error(`Failed to submit transaction: ${e}`);
-    res.status(200).send({ error: e.message });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
@@ -169,7 +171,7 @@ app.post('/api/drugPackages', async (req, res) => {
     console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
   } catch(e) {
     console.error(`Failed to submit transaction: ${e}`);
-    res.status(200).send({ error: e.message });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
@@ -187,7 +189,7 @@ app.get('/api/history/:id', async (req, res) => {
 
   if(!id) {
     console.log('Not sufficient arguments');
-    return res.status(200).send({ error: "Insufficient arguments" });
+    return res.status(200).json({ error: "Insufficient arguments" });
   }
 
   let result;
@@ -197,7 +199,7 @@ app.get('/api/history/:id', async (req, res) => {
     console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
   } catch(e) {
     console.error(`Failed to submit transaction: ${e}`);
-    res.status(200).send({ error: e });
+    res.status(200).json({ error: e.message });
     await gateway.disconnect();
     return;
   }
