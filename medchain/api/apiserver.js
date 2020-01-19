@@ -10,7 +10,7 @@ const path = require('path');
 const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
 console.log(ccpPath)
 
-app.use(function (req, res, next) {
+app.use(async function (req, res, next) {
 
    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
      return res.send(401).json({ 'message': 'Authorization Header Missing' });
@@ -18,35 +18,37 @@ app.use(function (req, res, next) {
 
    const base64Credentials = req.headers.authorization.split(' ')[1];
    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-   const [username, token] = credentials.split(':');
-   console.log('Username ' + username);
+   const [fullUsername, token] = credentials.split(':');
+   console.log('Username ' + fullUsername);
    console.log('Password ' + token);
-   
+   const [username, organisation] = fullUsername.split('@');
    const user = validateCredentials(username, token);
    if (!user) {
      console.log('Invalid credentials');
      return res.status(401).json({ 'message': 'Invalid Credentials' });
    }
+   user.identity = fullUsername;
    req.user = user;
    console.log('User');
    console.log(req.user);
+   const walletPath = path.join(process.cwd(), `identity/${user.name}/wallet`);
+   console.log(`Wallet is in: ${walletPath}`);
+   const wallet = new FileSystemWallet(walletPath);
+   const userExists = await wallet.exists(user.identity);
+   console.log(user.identity)
+   if(!userExists) {
+     console.log('An identity for the user does not exist in the wallet');
+     return res.status(401).json({ 'message':'An identity for the user does not exist in the wallet' });
+   }
+   req.wallet = wallet;
    next();
 })
 
 app.post('/api/createDrugPackage', async (req, res) => {
   try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
-    await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+    await gateway.connect(ccpPath, { wallet: req.wallet, identity: req.user.identity, discovery: { enabled: true, asLocalhost: true } });
 
     const network = await gateway.getNetwork('mychannel');
     const contract = network.getContract('med');
@@ -79,15 +81,6 @@ app.post('/api/createDrugPackage', async (req, res) => {
 
 app.put('/api/transferDrugPackage/:id', async (req, res) => {
    try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
     await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
@@ -122,15 +115,6 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
 
 app.put('/api/moveDrugPackage/:id', async (req, res) => {
   try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
     await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
@@ -163,15 +147,6 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
 
 app.get('/api/drugPackages/:id', async (req, res) => {
  try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
     await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
@@ -201,15 +176,6 @@ app.get('/api/drugPackages/:id', async (req, res) => {
 
 app.post('/api/drugPackages', async (req, res) => {
  try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
     await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
@@ -256,15 +222,6 @@ app.post('/api/drugPackages', async (req, res) => {
 
 app.get('/api/history/:id', async (req, res) => {
  try {
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet is in: ${walletPath}`);
-
-    const userExists = await wallet.exists('user1');
-    if(!userExists) {
-      console.log('An identity for the user does not exist in the wallet')
-      return;
-    }
 
     const gateway = new Gateway();
     await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
