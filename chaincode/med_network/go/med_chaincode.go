@@ -32,6 +32,7 @@ type drugPackage struct {
    Name       string `json:"name"`
    Manufacturer string `json:"manufacturer"`
    Temperature float64  `json:"temperature"`
+   Humidity float64  `json:"humidity"`
    Location location `json:"location"`
    Timestamp string `json:"timestamp"`
    Holder string `json:"holder"`
@@ -92,11 +93,11 @@ func (t* SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 //=======================================================================
 
 func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-   // Id, DrugName, Manufacturer, Temperature, LocationLatitutde, LocationLongitude, Holder, Pieces, Timestamp
+   // Id, DrugName, Manufacturer, Temperature, Humidity, LocationLatitutde, LocationLongitude, Holder, Pieces, Timestamp
    var err error
 
 
-   if len(args) != 9 {
+   if len(args) != 10 {
       return shim.Error("Incorrect number of arguments. Expecting 9")
    }
    if len(args[0]) <= 0 {
@@ -126,7 +127,9 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    if len(args[8]) <= 0 {
        return shim.Error("9th argument must be a non-empty string")
    }
-
+   if len(args[9]) <= 0 {
+       return shim.Error("10th argument must be a non-empty string")
+   }
    
    drugPackageId := args[0]
    drugName := args[1]
@@ -136,12 +139,19 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    if err != nil {
           return shim.Error("4th argument must be a numeric string")
    }    
-   drugLocationLatitude := args[4]
-   drugLocationLongitude := args[5]
-   drugHolder := args[6]
-   drugPieces, err := strconv.Atoi(args[7])
+   
+   drugHumidity, err := strconv.ParseFloat(args[4], 64)
+   drugHumidity = float64(drugHumidity)
    if err != nil {
-          return shim.Error("8th argument must be a numeric string")
+          return shim.Error("5th argument must be a numeric string")
+   } 
+
+   drugLocationLatitude := args[5]
+   drugLocationLongitude := args[6]
+   drugHolder := args[7]
+   drugPieces, err := strconv.Atoi(args[8])
+   if err != nil {
+          return shim.Error("9th argument must be a numeric string")
    } 
 
    // ==== Check if drug Package with the same id ====
@@ -153,7 +163,7 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
 	   return shim.Error("A package with the id " + drugPackageId + " already exists")
    }
    
-   drugTimestamp := args[8]
+   drugTimestamp := args[9]
    drugDateCreated := drugTimestamp
    drugDateShipped := "0"
    
@@ -162,7 +172,7 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    drugLocation := location{objectType, drugLocationLatitude, drugLocationLongitude} 
    // ==== Create drugPackage object and marshal to JSON ====
    objectType = "drugPackage"
-   drugPackage := &drugPackage{objectType, drugPackageId, drugName, drugManufacturer, drugTemperature, drugLocation, drugTimestamp, drugHolder, drugPieces, drugDateCreated, drugDateShipped}
+   drugPackage := &drugPackage{objectType, drugPackageId, drugName, drugManufacturer, drugTemperature, drugHumidity, drugLocation, drugTimestamp, drugHolder, drugPieces, drugDateCreated, drugDateShipped}
    drugPackageJSONasBytes, err := json.Marshal(drugPackage)
    if err !=nil {
 	   return shim.Error(err.Error())
@@ -176,16 +186,16 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    }
       
    // ==== Index ====
-   indexName := "manufacturer~id"
-   manufacturerIdIndexKey, err := stub.CreateCompositeKey(indexName, []string{drugPackage.Manufacturer, drugPackageId})
-   if err != nil {
-	   return shim.Error(err.Error())
-   }
+   //indexName := "manufacturer~id"
+   //manufacturerIdIndexKey, err := stub.CreateCompositeKey(indexName, []string{drugPackage.Manufacturer, drugPackageId})
+   //if err != nil {
+   //	   return shim.Error(err.Error())
+   //}
    
    // === Save index entry to state ====
 
-   value := []byte{0x00}
-   stub.PutState(manufacturerIdIndexKey, value)
+   //value := []byte{0x00}
+   //stub.PutState(manufacturerIdIndexKey, value)
 
    // ==== Index ====
    
@@ -301,9 +311,9 @@ func (t* SimpleChaincode) queryDrugPackageByName(stub shim.ChaincodeStubInterfac
 // Transfer a drugPackage by setting a new holder name on the package
 // ==================================================================
 func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, args[]string) pb.Response {
-        //Id, Holder, Temperature, LocationLatitude, LocationLongitude, Pieces, Timestamp
-	if len(args) < 7 {
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+        //Id, Holder, Temperature, Humidity, LocationLatitude, LocationLongitude, Pieces, Timestamp
+	if len(args) < 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 8")
 	}
 
 	packageId := args[0]
@@ -313,9 +323,14 @@ func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, 
 	if err != nil {
 		return shim.Error("3rd argument must be a numeric string")
 	}
-	newLocationLatitude := args[3]
-	newLocationLongitude := args[4]
-	pieces := args[5]
+        newHumidity, err := strconv.ParseFloat(args[3], 64)
+	newHumidity = float64(newHumidity)
+	if err != nil {
+		return shim.Error("4th argument must be a numeric string")
+	}
+	newLocationLatitude := args[4]
+	newLocationLongitude := args[5]
+	pieces := args[6]
 
 	fmt.Println("- start transferDrugPackage ", packageId, newHolder)
 
@@ -340,6 +355,7 @@ func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, 
 	}
 	drugPackageToTransfer.Holder = newHolder //change the holder
 	drugPackageToTransfer.Temperature = newTemperature //change the temperature
+	drugPackageToTransfer.Humidity = newHumidity //change the the humidity
 	drugPackageToTransfer.Location = newLocation //change the location
         drugPackageToTransfer.Timestamp = newTimestamp //change the timestamp
 	drugPackageToTransfer.Pieces, err = strconv.Atoi(pieces)
@@ -360,9 +376,9 @@ func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, 
 // Move a drugPackage by setting a new location name on the package
 // ==================================================================
 func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args[]string) pb.Response {
-	// Id, Temperature, LocationLatitutde, LocationLongitude, Timestamp
-	if len(args) < 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+	// Id, Temperature, Humidity, LocationLatitutde, LocationLongitude, Timestamp
+	if len(args) < 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
 	packageId := args[0]
@@ -371,8 +387,14 @@ func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args
 	if err != nil {
 		return shim.Error("2nd argument must be a numeric string")
 	}
-	newLocationLatitude := args[2]
-	newLocationLongitude := args[3]
+	newHumidity, err := strconv.ParseFloat(args[2], 64)
+	newHumidity = float64(newHumidity)
+	if err != nil {
+		return shim.Error("3rd argument must be a numeric string")
+	}
+
+	newLocationLatitude := args[3]
+	newLocationLongitude := args[4]
 
 	fmt.Println("- start moveDrugPackage ", packageId)
 
@@ -396,6 +418,7 @@ func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args
 		return shim.Error(err.Error())
 	}
 	drugPackageToMove.Temperature = newTemperature //change the temperature
+	drugPackageToMove.Humidity = newHumidity //change the humidity
 	drugPackageToMove.Location = newLocation //change the location
         drugPackageToMove.Timestamp = newTimestamp //change the timestamp
 

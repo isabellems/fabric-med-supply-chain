@@ -174,13 +174,14 @@ createPackage() {
   NAME=$2
   MANUFACTURER=$3
   TEMPERATURE=$4
-  LATITUDE=$5
-  LONGITUDE=$6
-  HOLDER=$7
-  PIECES=${8}
-  TIMESTAMP=${9}
+  HUMIDITY=$5
+  LATITUDE=$6
+  LONGITUDE=$7
+  HOLDER=$8
+  PIECES=$9
+  TIMESTAMP=${10}
   
-  parsePeerConnectionParameters ${@:10}
+  parsePeerConnectionParameters ${@:11}
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
@@ -189,12 +190,12 @@ createPackage() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["initDrugPackage", '"\"$ID\""','"\"$NAME\""', '"\"$MANUFACTURER\""', '"\"$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$HOLDER\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["initDrugPackage", '"\"$ID\""','"\"$NAME\""', '"\"$MANUFACTURER\""', '"\"$TEMPERATURE\""', '"\"$HUMIDITY\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$HOLDER\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c  '{"Args":["initDrugPackage", '"\"$ID\""', '"\"$MANUFACTURER\""', '"\"$NAME\""','"\"$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$HOLDER\""', '"\"$PIECES\""', '"\"$TIMESTAMP"\""']}'  >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c  '{"Args":["initDrugPackage", '"\"$ID\""', '"\"$MANUFACTURER\""', '"\"$NAME\""','"\"$TEMPERATURE\""', '"\"$HUMIDITY\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$HOLDER\""', '"\"$PIECES\""', '"\"$TIMESTAMP"\""']}'  >&log.txt
     res=$?
     set +x
   fi
@@ -210,12 +211,13 @@ transferPackage() {
   ID=$1
   HOLDER=$2
   TEMPERATURE=$3
-  LATITUDE=$4
-  LONGITUDE=$5
-  PIECES=$6
-  TIMESTAMP=$7
+  HUMIDITY=$4
+  LATITUDE=$5
+  LONGITUDE=$6
+  PIECES=$7
+  TIMESTAMP=$8
 
-  parsePeerConnectionParameters ${@:8}
+  parsePeerConnectionParameters ${@:9}
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
@@ -224,12 +226,12 @@ transferPackage() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["transferDrugPackage",'"\"$ID\""','"\'$HOLDER\""','"\"$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["transferDrugPackage",'"\"$ID\""','"\'$HOLDER\""','"\"$TEMPERATURE\""', '"\"$HUMIDITY\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["transferDrugPackage",'"\"$ID\""','"\"$HOLDER\""','"\"$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["transferDrugPackage",'"\"$ID\""','"\"$HOLDER\""','"\"$TEMPERATURE\""','"\"$HUMIDITY\""','"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$PIECES\""', '"\"$TIMESTAMP\""']}' >&log.txt
     res=$?
     set +x
   fi
@@ -244,11 +246,12 @@ transferPackage() {
 movePackage() {
   ID=$1
   TEMPERATURE=$2
-  LATITUDE=$3
-  LONGITUDE=$4
-  TIMESTAMP=$5
+  HUMIDITY=$3
+  LATITUDE=$4
+  LONGITUDE=$5
+  TIMESTAMP=$6
    
-  parsePeerConnectionParameters ${@:6}
+  parsePeerConnectionParameters ${@:7}
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
@@ -257,12 +260,12 @@ movePackage() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["moveDrugPackage",'"\"$ID\""', '\""$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$TIMESTAMP\""']}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["moveDrugPackage",'"\"$ID\""', '\""$TEMPERATURE\""', '\""$HUMIDITY\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$TIMESTAMP\""']}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["moveDrugPackage",'"\"$ID\""', '"\"$TEMPERATURE\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$TIMESTAMP\"']}' >&log.txt
+    peer chaincode invoke -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS -c '{"Args":["moveDrugPackage",'"\"$ID\""', '"\"$TEMPERATURE\""', '"\"$HUMIDITY\""', '"\"$LATITUDE\""', '"\"$LONGITUDE\""', '"\"$TIMESTAMP\"']}' >&log.txt
     res=$?
     set +x
   fi

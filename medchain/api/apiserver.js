@@ -21,20 +21,21 @@ app.post('/api/createDrugPackage', async (req, res) => {
   let name = req.body.name;
   let manufacturer = req.body.manufacturer;
   let temperature = req.body.temperature;
+  let humidity = req.body.humidity;
   let locationLatitude = req.body.locationLatitude;
   let locationLongitude = req.body.locationLongitude;
   let holder = req.body.holder;
   let pieces = req.body.pieces;
   let timestamp = new Date().getTime().toString();
 	
-  if(!id || !name || !manufacturer || !temperature || !locationLatitude || !locationLongitude || !holder || !pieces) {
+  if(!id || !name || !manufacturer || !temperature || !humidity || !locationLatitude || !locationLongitude || !holder || !pieces) {
     console.log('Not sufficient arguments');
     return res.status(200).json({ error: "Insufficient arguments" });
   }
   console.log('Submitting transaction...');
   
   try {
-    await contract.submitTransaction('initDrugPackage', id, name, manufacturer, temperature, locationLatitude, locationLongitude, holder, pieces, timestamp);
+    await contract.submitTransaction('initDrugPackage', id, name, manufacturer, temperature, humidity, locationLatitude, locationLongitude, holder, pieces, timestamp);
     console.log('Transaction submitted successfully');
   } catch(e) {
     console.log('Failed to submit transaction');
@@ -53,20 +54,21 @@ app.put('/api/transferDrugPackage/:id', async (req, res) => {
     
   let id = req.params.id;
   let temperature = req.body.temperature;
+  let humidity = req.body.humidity;
   let locationLatitude = req.body.locationLatitude;
   let locationLongitude = req.body.locationLongitude;
   let holder = req.body.holder;
   let pieces = req.body.pieces;
   let timestamp = new Date().getTime().toString();
 	
-  if(!id || !temperature || !locationLatitude || !locationLongitude || !holder || !pieces) {
+  if(!id || !temperature || !humidity || !locationLatitude || !locationLongitude || !holder || !pieces) {
     console.log('Not sufficient arguments');
     return res.status(200).json({ error: "Insufficient arguments" });
   }
     
   console.log('Submitting transaction...');
   try {
-    await contract.submitTransaction('transferDrugPackage', id, holder, temperature, locationLatitude, locationLongitude, pieces, timestamp);
+    await contract.submitTransaction('transferDrugPackage', id, holder, temperature, humidity, locationLatitude, locationLongitude, pieces, timestamp);
     console.log('Transaction submitted successfully');
   } catch(e) {
     console.log('Failed to submit transaction');
@@ -85,18 +87,19 @@ app.put('/api/moveDrugPackage/:id', async (req, res) => {
     
   let id = req.params.id;
   let temperature = req.body.temperature;
+  let humidity = req.body.humidity;
   let locationLatitude = req.body.locationLatitude;
   let locationLongitude = req.body.locationLongitude;
   let timestamp = new Date().getTime().toString();
 	
-  if(!id || !temperature || !locationLatitude || !locationLongitude) {
+  if(!id || !temperature || !humidity || !locationLatitude || !locationLongitude) {
     console.log('Not sufficient arguments');
     return res.status(200).json({ error: "Insufficient arguments" });
   }
 
   console.log('Submitting transaction...');
   try {
-    await contract.submitTransaction('moveDrugPackage', id, temperature, locationLatitude, locationLongitude, timestamp);
+    await contract.submitTransaction('moveDrugPackage', id, temperature, humidity, locationLatitude, locationLongitude, timestamp);
     console.log('Transaction submitted successfully');
   } catch(e) {
     console.log('Failed to submit transaction');
@@ -142,25 +145,26 @@ app.post('/api/drugPackages', async (req, res) => {
   const contract = req.contract;
     
   let selector = {};
-  selector.name = req.body.name ? req.body.name : undefined
-  selector.manufacturer = req.body.manufacturer ? req.body.manufacturer : undefined
-  selector.temperature = req.body.temperature ? req.body.temperature : undefined
-  selector.holder = req.body.holder ? req.body.holder : undefined
-  selector.pieces = req.body.pieces ? req.body.pieces : undefined
-  selector.dateCreated = req.body.dateCreated ? req.body.dateCreated : undefined
-  selector.dateShipped = req.body.dateShipped ? req.body.dateShipped : undefined
-  if (req.body.location) {
-    selector.location = {}
-    if (req.body.location.latitude) {
-      selector.location.latitude = req.body.location.latitude
+  const availableFilters = ['name', 'manufacturer', 'temperature', 'humidity', 'holder', 'pieces', 'dateCreated', 'dateShipped', 'locationLatitude', 'locationLongitude'];
+  console.log('Body');
+  console.log(req.body);
+  for (filter of Object.keys(req.body)) {
+    console.log(filter);
+    if (!availableFilters.includes(filter)) {
+      return res.status(200).json({ error: `Invalid filter ${filter}` })
     }
-    if (req.body.location.longitude) {
-      selector.location.longitude = req.body.location.longitude
+    if (filter == 'locationLatitude' || filter == 'locationLongitude') {
+      selector.location = {};
+      selector.location.latitude = (filter == 'locationLatitude') ? req.body[filter] : undefined;
+      selector.location.longitude = (filter == 'locationLongitude') ? req.body[filter] : undefined;
+    } else {
+      selector[filter] = req.body[filter]
     }
   }
+    
   console.log('Selector:');
   console.log(selector)
-  let query = JSON.stringify({ selector })
+  let query = JSON.stringify({ selector: selector })
   console.log('Query:');
   console.log(query);
     
