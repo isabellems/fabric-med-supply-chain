@@ -342,6 +342,38 @@ getHistory() {
 
 }
 
+deletePackage() {
+  PEER=$1
+  ORG=$2
+  ID=$3
+  setGlobals $PEER $ORG
+  echo "===================== Deleting on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
+  local rc=1
+  local starttime=$(date +%s)
+
+  # continue to poll
+  # we either get a successful response, or reach TIMEOUT
+  while
+    test "$(($(date +%s) - starttime))" -lt "$TIMEOUT" -a $rc -ne 0
+  do
+    sleep $DELAY
+    echo "Attempting to Delete peer${PEER}.org${ORG} ...$(($(date +%s) - starttime)) secs"
+    set -x
+    peer chaincode invoke -C $CHANNEL_NAME -n mycc -c '{"Args":["deleteDrugPackage",'"\"$ID\""']}' >&log.txt
+    res=$?
+    set +x
+    #test $res -eq 0 && VALUE=$(cat log.txt | awk '/Query Result/ {print $NF}')
+    # removed the string "Query Result" from peer chaincode query command
+    # result. as a result, have to support both options until the change
+    # is merged.
+    #test $rc -ne 0 && VALUE=$(cat log.txt | egrep '^[0-9]+$')
+  done
+  echo
+  cat log.txt
+  verifyResult $res "Invocation failed"
+  echo "===================== Invocation successful on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME' ===================== "
+}
+
 
 
 chaincodeQuery() {

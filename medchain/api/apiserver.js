@@ -212,5 +212,33 @@ app.get('/api/history/:id', async (req, res) => {
   await gateway.disconnect();
 });
 
+app.delete('/api/drugPackages/:id', async (req, res) => {
+
+  const gateway = req.gateway;
+  const contract = req.contract;
+    
+  let id = req.params.id;
+
+  if(!id) {
+    console.log('Not sufficient arguments');
+    return res.status(200).json({ error: "Insufficient arguments" });
+  }
+
+  let result;
+  console.log('Evaluating transaction...');
+  try {
+    result = await contract.submitTransaction('deleteDrugPackage', id);
+    console.log(`Transaction has been submitted, result is: ${result.toString()}`);
+  } catch(e) {
+    console.error(`Failed to submit transaction: ${e}`);
+    res.status(200).json({ error: e.message });
+    await gateway.disconnect();
+    return;
+  }
+
+  res.status(200).json({ response: result.toString() });
+  await gateway.disconnect();
+});
+
 app.listen(3000);
 

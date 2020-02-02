@@ -82,7 +82,10 @@ func (t* SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	  return t.queryDrugPackages(stub, args)
   } else if function == "getHistoryForDrugPackage" {
 	  return t.getHistoryForDrugPackage(stub, args)
+  } else if function == "deleteDrugPackage" {
+	  return t.deleteDrugPackage(stub, args)
   }
+
 
   fmt.Println("invoke did not find func: " + function) //error
   return shim.Error("Received unknown function invocation")
@@ -531,6 +534,41 @@ func (t* SimpleChaincode) getHistoryForDrugPackage(stub shim.ChaincodeStubInterf
         fmt.Printf("- getHistoryForPackage returning:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
+}
+
+// ==================================================
+// delete - remove a drug package from state
+// ==================================================
+func (t *SimpleChaincode) deleteDrugPackage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	var jsonResp string
+	var drugPackageJSON drugPackage
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+	drugPackageId := args[0]
+
+	// to maintain the color~name index, we need to read the marble first and get its color
+	valAsbytes, err := stub.GetState(drugPackageId) //get the marble from chaincode state
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to get state for " + drugPackageId + "\"}"
+		return shim.Error(jsonResp)
+	} else if valAsbytes == nil {
+		jsonResp = "{\"Error\":\"Marble does not exist: " + drugPackageId + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	err = json.Unmarshal([]byte(valAsbytes), &drugPackageJSON)
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to decode JSON of: " + drugPackageId + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	err = stub.DelState(drugPackageId) //remove the marble from chaincode state
+	if err != nil {
+		return shim.Error("Failed to delete state:" + err.Error())
+	}
+
+	return shim.Success(nil)
 }
 
 
