@@ -13,6 +13,7 @@ import (
        "time"
        "encoding/json"
        "github.com/hyperledger/fabric/core/chaincode/shim"
+       "github.com/hyperledger/fabric/core/chaincode/shim/ext/cid"
         pb "github.com/hyperledger/fabric/protos/peer"
 )
 
@@ -133,6 +134,14 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
    if len(args[9]) <= 0 {
        return shim.Error("10th argument must be a non-empty string")
    }
+
+   mspid, err := cid.GetMSPID(stub)
+   fmt.Printf("- mspid: %s\n", mspid)
+
+   if mspid != "Org1MSP" {
+	   return shim.Error("Wrong MSP")
+   }
+
    
    drugPackageId := args[0]
    drugName := args[1]
@@ -188,22 +197,6 @@ func (t *SimpleChaincode) initDrugPackage(stub shim.ChaincodeStubInterface, args
 	   return shim.Error(err.Error())
    }
       
-   // ==== Index ====
-   //indexName := "manufacturer~id"
-   //manufacturerIdIndexKey, err := stub.CreateCompositeKey(indexName, []string{drugPackage.Manufacturer, drugPackageId})
-   //if err != nil {
-   //	   return shim.Error(err.Error())
-   //}
-   
-   // === Save index entry to state ====
-
-   //value := []byte{0x00}
-   //stub.PutState(manufacturerIdIndexKey, value)
-
-   // ==== Index ====
-   
-
-   // ==== DrugPackage saved and indexed ====
    fmt.Println("- end init drug package")
    return shim.Success(nil)
 
@@ -348,7 +341,7 @@ func (t *SimpleChaincode) transferDrugPackage(stub shim.ChaincodeStubInterface, 
 	objectType := "location"
         newLocation := location{objectType, newLocationLatitude, newLocationLongitude} 
 	
-	newTimestamp := args[6]
+	newTimestamp := args[7]
 
 	drugPackageToTransfer := drugPackage{}
 	err = json.Unmarshal(drugPackageAsBytes, &drugPackageToTransfer)
@@ -384,6 +377,13 @@ func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
+        mspid, err := cid.GetMSPID(stub)
+        fmt.Printf("- mspid: %s\n", mspid)
+
+        if mspid != "Org2MSP" {
+	   return shim.Error("Wrong MSP")
+        }
+
 	packageId := args[0]
 	newTemperature, err := strconv.ParseFloat(args[1], 64)
 	newTemperature = float64(newTemperature)
@@ -412,7 +412,7 @@ func (t *SimpleChaincode) moveDrugPackage(stub shim.ChaincodeStubInterface, args
 	objectType := "location"
         newLocation := location{objectType, newLocationLatitude, newLocationLongitude} 
 	
-	newTimestamp := args[4]
+	newTimestamp := args[5]
 
 	drugPackageToMove := drugPackage{}
 	err = json.Unmarshal(drugPackageAsBytes, &drugPackageToMove)
