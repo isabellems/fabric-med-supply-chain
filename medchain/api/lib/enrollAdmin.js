@@ -18,7 +18,7 @@ async function enrollAdmin(organisation) {
 
     console.log(organisation)
     
-    const ccpPath = path.resolve(__dirname, '../..', '..', 'first-network', connectionFile);
+    const ccpPath = path.resolve(__dirname, '../..', '..', 'med-network', connectionFile);
     const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
     const ccp = JSON.parse(ccpJSON);
 

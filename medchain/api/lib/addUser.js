@@ -14,7 +14,7 @@ async function addUser(user, organisation) {
   let msp = organisation.msp;
   let userName = `${user}@${organisation.name}`;
   let caAdmin = organisation.admin;
-  const ccpPath = path.resolve(__dirname, '..', '../..', 'first-network', connectionFile);
+  const ccpPath = path.resolve(__dirname, '..', '../..', 'med-network', connectionFile);
 
   try {
         // Create a new file system based wallet for managing identities.
